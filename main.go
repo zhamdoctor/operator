@@ -67,6 +67,7 @@ func main() {
 
 	ctrl.SetLogger(zap.New(zap.UseDevMode(true)))
 
+	//初始化manager
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:             scheme,
 		MetricsBindAddress: metricsAddr,
@@ -78,13 +79,13 @@ func main() {
 		setupLog.Error(err, "unable to start manager")
 		os.Exit(1)
 	}
-
+	//初始化k8s客户端
 	kubeClient, err := kubernetes.NewForConfig(mgr.GetConfig())
 	if err != nil {
 		setupLog.Error(fmt.Errorf("fail to get kubeclient"), "fail to get kubeclient")
 		os.Exit(1)
 	}
-
+	//Client和kubeclient的区别:Client打开源码能看到只有k8s原生资源的group,没有crd的组,Client中包含Schema和RESTmAPPER,里面包含了包括crd在内的所有gvk/gvr数据映射，便于操作
 	if err = (&controllers.HarborServiceReconciler{
 		KubeClient: kubeClient,
 		Client:     mgr.GetClient(),
@@ -97,7 +98,7 @@ func main() {
 		os.Exit(1)
 	}
 	// +kubebuilder:scaffold:builder
-
+	//启动manager
 	setupLog.Info("starting manager")
 	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
 		setupLog.Error(err, "problem running manager")

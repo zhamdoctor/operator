@@ -130,7 +130,7 @@ func (r *HarborServiceReconciler) sync(syncers []syncer.SyncInterface) error {
 	return nil
 }
 
-// 执行删除操作
+// 执行删除操作 删除所有同步器下的资源
 func (r *HarborServiceReconciler) delete(syncer []syncer.SyncInterface) error {
 	for _, s := range syncer {
 		s.Delete(context.TODO())
